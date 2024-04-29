@@ -28,7 +28,9 @@ celery_app = Celery("celery-tasks", broker=REDIS_URL, backend=REDIS_URL)
 celery_app.conf.broker_connection_retry_on_startup = True
 
 
-def compile_uuv_datapoint_request(noisy_sample_point: tuple, timestamp: str) -> str:
+def compile_uuv_datapoint_request(
+    noisy_sample_point: tuple, timestamp: str, identifier: str
+) -> str:
     latitude, longitude = cartesian_to_latlon(
         noisy_sample_point[0], noisy_sample_point[1]
     )
@@ -38,6 +40,7 @@ def compile_uuv_datapoint_request(noisy_sample_point: tuple, timestamp: str) -> 
             "longitude": longitude,
             "elevation": noisy_sample_point[2],
             "timestamp": timestamp.isoformat(),
+            "identifier": identifier,
         }
     )
 
@@ -89,6 +92,7 @@ def _uuv_trajectory_producer(specification: str) -> None:
                 json_data = compile_uuv_datapoint_request(
                     noisy_sample_point=noisy_sample_points[index],
                     timestamp=timestamps[index],
+                    identifier=specification["identifier"],
                 )
                 client.request(
                     method="POST",
