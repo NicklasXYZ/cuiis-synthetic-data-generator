@@ -1,0 +1,36 @@
+<div hx-swap-oob="true:#content">
+    <table>
+        <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Start Time</th>
+                <th scope="col">Running Time</th>
+                <th scope="col">Kill Process</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if rows|length %}
+            {% for row in rows %}
+            <tr>
+                <th scope="row"> <a href="/generators/log/{{ row.generator_id }}">{{ row.generator_id }}</a> </th>
+                <td>{{ row.start_time }}</td>
+                <td>{{ row.running_time }}</td>
+                <td>
+                    <button hx-post="/generators/{{ row.generator_id }}/stop" hx-target="body" hx-swap="none">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </td>
+            </tr>
+            {% endfor %}
+            {% else %}
+            <tr>
+                <th scope="row" colspan="4" style="text-align:center">
+                    <small>
+                        <i>No running data generators.</i>
+                    </small>
+                </th>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>

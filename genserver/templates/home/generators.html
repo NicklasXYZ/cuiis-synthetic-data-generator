@@ -1,0 +1,29 @@
+{% extends "shared/_layout.html" %} {% block main_content %}
+
+<div class="container">
+  <article>
+    <header>
+      <nav>
+        <ul>
+          <li><h1 id="title-txt">Generator Log for {{ generator_id }}</h1></li>
+        </ul>
+        <ul>
+          <li><a href="/">Home</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <div class="grid">
+      <div>
+        <div
+          hx-ext="ws"
+          ws-connect="ws://0.0.0.0:8080/ws/generators/log/{{ generator_id }}"
+        >
+          <!-- location for new messages from the server -->
+          <div id="content"></div>
+        </div>
+      </div>
+    </div>
+  </article>
+</div>
+{% endblock %}

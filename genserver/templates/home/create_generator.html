@@ -1,0 +1,101 @@
+<article>
+    <div class="grid">
+        <div>
+
+            <h3>Generator Options</h3>
+
+            <div id="generators">
+                <select class="contrast" id="generator-options" autocomplete="off">
+                    <option selected disabled value="">Select</option>
+                    <option value="A">UUV Trajectory Data</option>
+                    <option value="B">Diver Physiological Data</option>false
+                </select>
+            </div>
+
+            <div id="generator-inputs">
+
+                <div id="A" style="display: none;">
+                    <label for="uuv-trajectory-generator">Request Body</label>
+                    <form id="uuv-trajectory-generator" onsubmit="sendRawData(this); return false;">
+                        <textarea id="request-test-area" rows=15 class="xs"></textarea>
+                        <button type="submit">Send Request</button>
+                    </form>
+                    <label for="response">Response</label>
+                    <textarea id="response" rows=15 readonly></textarea>
+                </div>
+
+                <div id="B" style="display: none;">
+                    <p>Not yet implemented...</p>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</article>
+
+<script>
+    document.getElementById('generator-options').addEventListener('change', function () {
+        // Hide both elements
+        document.getElementById('A').style.display = 'none';
+        document.getElementById('B').style.display = 'none';
+
+        // Show the appropriate element based on the value of the select input
+        if (this.value === 'A') {
+            document.getElementById('A').style.display = 'block';
+        } else {
+            document.getElementById('B').style.display = 'block';
+        }
+    });
+
+    var uuv_trajectory_generator_example = {
+        "identifier": "uuv1",
+        "url": "http://conserver:8081/consumer/uuv/trajectory",
+        "waypoints": [
+            { "latitude": 43.187634, "longitude": 27.926699, "elevation": 0.0 },
+            { "latitude": 43.190732, "longitude": 27.926570, "elevation": 3.0 },
+            { "latitude": 43.194048, "longitude": 27.926184, "elevation": 6.0 },
+            { "latitude": 43.195237, "longitude": 27.929190, "elevation": 9.0 },
+            { "latitude": 43.194361, "longitude": 27.930994, "elevation": 12.0 },
+            { "latitude": 43.192546, "longitude": 27.931337, "elevation": 15.0 },
+            { "latitude": 43.189793, "longitude": 27.931809, "elevation": 12.0 },
+            { "latitude": 43.188166, "longitude": 27.931808, "elevation": 9.0 },
+            { "latitude": 43.189042, "longitude": 27.929103, "elevation": 6.0 },
+            { "latitude": 43.192265, "longitude": 27.928330, "elevation": 4.0 },
+        ],
+        "start_datetime": "2024-04-27T19:09:52.830Z",
+        "mean_time_delta": 5.0,
+        "std_time_delta": 0.10,
+        "mean_speed": 1.0,
+        "std_speed": 0.25,
+        "std_spatial": 0.25,
+        "turning_radius": 5,
+    }
+
+    function prettyPrint(json_data, textarea_id) {
+        var pretty = JSON.stringify(json_data, undefined, 2);
+        document.getElementById(textarea_id).value = pretty;
+    }
+
+    prettyPrint(uuv_trajectory_generator_example, "request-test-area")
+
+
+    function sendRawData(formElement, urlPath) {
+        console.log(formElement);
+        var textData = formElement.querySelector("textarea").value;
+        fetch("/producer/uuv/trajectory", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(JSON.parse(textData))
+        })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('response').innerHTML = JSON.stringify(data, undefined, 2);
+            })
+            .catch(error => {
+                console.error('Error:', error)
+            });
+    }
+</script>

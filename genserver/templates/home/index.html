@@ -1,0 +1,22 @@
+{% extends "shared/_layout.html" %} {% block main_content %}
+
+<div class="container">
+  <article>
+    <header>
+      <nav>
+        <ul>
+          <li><h1 id="title-txt">CUIIS Synthetic Data Generator</h1></li>
+        </ul>
+        <ul>
+          <li><a href="/">Home</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    {% include 'home/running_generators.html' %}
+  </article>
+
+  {% include 'home/create_generator.html' %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,100 @@
+version: "3.9"
+
+services:
+  
+  redis:
+    restart: always
+    image: redis:latest
+    container_name: redis
+    ports:
+      - 6379:6379
+    # volumes:
+    #   - redis_data:/data:rw
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "5"
+        max-size: "10m"
+    networks:
+      - live
+    # NOTE: Use option below to expose the service on horst network 
+    # network_mode: host
+
+  genserver:
+    container_name: genserver
+    build: ./genserver
+    command: uvicorn genserver:app --host 0.0.0.0 --port 8080
+    # volumes:
+    #   - .:/app
+    ports:
+      - 8080:8080
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "5"
+        max-size: "10m"
+    depends_on:
+      - redis
+    networks:
+      - live
+    # NOTE: Use option below to expose the service on horst network 
+    # network_mode: host
+
+  celery_worker:
+    container_name: celery_worker
+    build: ./genserver
+    command: celery -A celery_worker worker --pool=prefork --concurrency=25 --loglevel=info
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "5"
+        max-size: "10m"
+    # volumes:
+    #   - .:/app
+    depends_on:
+      - redis
+      - genserver
+    networks:
+      - live
+    # NOTE: Use option below to expose the service on horst network 
+    # network_mode: host
+
+  flower:
+    container_name: flower
+    build: ./genserver
+    command: celery -A celery_worker flower --port=5555
+    ports:
+      - 5555:5555
+    depends_on:
+      - genserver
+      - redis
+      - celery_worker
+    networks:
+      - live
+    # NOTE: Use option below to expose the service on horst network 
+    # network_mode: host
+
+  conserver:
+    container_name: conserver
+    build: ./conserver
+    # command: uvicorn tasks:app --host 0.0.0.0 --port 8000 --reload
+    # volumes:
+    #   - .:/app
+    ports:
+      - 8081:8081
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "5"
+        max-size: "10m"
+    depends_on:
+      - genserver
+    networks:
+      - live
+    # NOTE: Use option below to expose the service on horst network 
+    # network_mode: host
+
+networks:
+  live:
